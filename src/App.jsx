@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
+import Analytics from "./pages/Analytics";
+import GenerateQR from "./pages/GenerateQR";
+import Verify from "./pages/Verify";
 
 function App() {
   return (
@@ -12,7 +15,9 @@ function App() {
           <Route path="/ngo" element={<div className="p-10">NGO Board</div>} />
           <Route path="/retailer" element={<div className="p-10">Retailer</div>} />
           <Route path="/map" element={<div className="p-10">Map</div>} />
-          <Route path="/analytics" element={<div className="p-10">Analytics</div>} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/generate-qr" element={<GenerateQR />} />
+          <Route path="/verify/:id" element={<Verify />} />
         </Routes>
       </Layout>
     </BrowserRouter>
