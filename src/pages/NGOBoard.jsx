@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-
+import { logClaimOnChain } from '../lib/blockchain';
 const riskColor = { high: 'border-risk-high', medium: 'border-risk-medium', low: 'border-risk-low' };
 const riskText = { high: 'text-risk-high', medium: 'text-risk-medium', low: 'text-risk-low' };
 
@@ -34,6 +34,7 @@ export default function NGOBoard() {
       alert('Could not claim: ' + error.message);
     } else {
       setListings((prev) => prev.filter((l) => l.id !== listingId));
+      logClaimOnChain(ngoId, listingId);
     }
   }
 
