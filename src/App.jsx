@@ -14,7 +14,11 @@ function App() {
 
           <Route
             path="/ngo"
-            element={<div className="p-10">NGO Board</div>}
+            element={
+              <div className="min-h-screen p-10">
+                <h1 className="text-3xl font-bold">NGO Board</h1>
+              </div>
+            }
           />
 
           <Route path="/retailer" element={<Retailer />} />
@@ -23,12 +27,20 @@ function App() {
 
           <Route
             path="/map"
-            element={<div className="p-10">Map</div>}
+            element={
+              <div className="min-h-screen p-10">
+                <h1 className="text-3xl font-bold">Map</h1>
+              </div>
+            }
           />
 
           <Route
             path="/analytics"
-            element={<div className="p-10">Analytics</div>}
+            element={
+              <div className="min-h-screen p-10">
+                <h1 className="text-3xl font-bold">Analytics</h1>
+              </div>
+            }
           />
         </Routes>
       </Layout>

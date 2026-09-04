@@ -32,7 +32,27 @@ export default function Retailer() {
       return;
     }
 
-    console.log(formData);
+    const existingListings =
+      JSON.parse(localStorage.getItem("retailerListings")) || [];
+
+    const newListing = {
+      id: Date.now(),
+      product: formData.product,
+      category: formData.category,
+      quantity: Number(formData.quantity),
+      expiry: formData.expiry,
+      description: formData.description,
+      status: "Available",
+      ngo: null,
+    };
+
+    const updatedListings = [newListing, ...existingListings];
+
+    localStorage.setItem(
+      "retailerListings",
+      JSON.stringify(updatedListings)
+    );
+
     alert("Listing created successfully!");
 
     setFormData({
@@ -48,7 +68,6 @@ export default function Retailer() {
     <div className="min-h-screen bg-white px-6 py-10 md:px-10">
       <div className="mx-auto max-w-6xl">
 
-        {/* Header */}
         <div className="mb-8">
           <p className="mb-2 font-body text-sm font-semibold uppercase tracking-wide text-accent">
             Retailer Portal
@@ -61,8 +80,8 @@ export default function Retailer() {
               </h1>
 
               <p className="mt-3 max-w-2xl font-body text-text-muted">
-                Create food listings and help nearby NGOs discover surplus food
-                before it goes to waste.
+                Create food listings and help nearby NGOs discover surplus
+                food before it goes to waste.
               </p>
             </div>
 
@@ -75,9 +94,7 @@ export default function Retailer() {
           </div>
         </div>
 
-        {/* Create Listing */}
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100 md:p-8">
-
           <h2 className="font-heading text-2xl font-bold text-gray-900">
             Create New Listing
           </h2>
@@ -88,7 +105,6 @@ export default function Retailer() {
 
           <form onSubmit={handleSubmit} className="mt-8">
 
-            {/* Product + Category */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
               <div>
@@ -124,11 +140,10 @@ export default function Retailer() {
                   <option value="Dairy">Dairy</option>
                   <option value="Grains">Grains</option>
                   <option value="Packaged">Packaged</option>
-                  <option value="Cooked">Cooked Food</option>
+                  <option value="Cooked Food">Cooked Food</option>
                 </select>
               </div>
 
-              {/* Quantity */}
               <div>
                 <label className="mb-2 block font-body font-semibold text-gray-900">
                   Quantity (kg)
@@ -146,7 +161,6 @@ export default function Retailer() {
                 />
               </div>
 
-              {/* Expiry */}
               <div>
                 <label className="mb-2 block font-body font-semibold text-gray-900">
                   Expiry Date
@@ -157,6 +171,7 @@ export default function Retailer() {
                   name="expiry"
                   value={formData.expiry}
                   onChange={handleChange}
+                  min={new Date().toISOString().split("T")[0]}
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-brand"
                   required
                 />
@@ -164,7 +179,6 @@ export default function Retailer() {
 
             </div>
 
-            {/* Description */}
             <div className="mt-6">
               <label className="mb-2 block font-body font-semibold text-gray-900">
                 Description
@@ -180,7 +194,6 @@ export default function Retailer() {
               />
             </div>
 
-            {/* Button */}
             <div className="mt-8 flex justify-end">
               <button
                 type="submit"
