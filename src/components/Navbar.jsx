@@ -11,12 +11,12 @@ function Navbar() {
     { name: "Retailer", path: "/retailer" },
     { name: "Map", path: "/map" },
     { name: "Analytics", path: "/analytics" },
+    { name: "AI Pricing", path: "/pricing" },
   ];
 
   return (
     <header className="border-b border-border bg-surface-alt">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-
         <NavLink to="/" className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand">
             <Leaf className="h-6 w-6 text-white" />
@@ -34,9 +34,7 @@ function Navbar() {
               to={link.path}
               className={({ isActive }) =>
                 `font-body text-sm font-medium transition ${
-                  isActive
-                    ? "text-accent"
-                    : "text-text hover:text-brand"
+                  isActive ? "text-accent" : "text-text hover:text-brand"
                 }`
               }
             >

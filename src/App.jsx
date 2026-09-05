@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Layout from "./components/Layout";
+
 import Home from "./pages/Home";
 import Retailer from "./pages/Retailer";
 import MyListings from "./pages/MyListings";
@@ -9,7 +9,7 @@ import GenerateQR from "./pages/GenerateQR";
 import Verify from "./pages/Verify";
 import NGOBoard from "./pages/NGOBoard";
 import NGOLogin from "./pages/NGOLogin";
-import FarmerVoice from "./pages/FarmerVoice";
+import Pricing from "./pages/Pricing";
 
 function App() {
   return (
@@ -26,8 +26,6 @@ function App() {
 
           <Route path="/my-listings" element={<MyListings />} />
 
-          <Route path="/farmer" element={<FarmerVoice />} />
-
           <Route
             path="/map"
             element={
@@ -42,6 +40,8 @@ function App() {
           <Route path="/generate-qr" element={<GenerateQR />} />
 
           <Route path="/verify/:id" element={<Verify />} />
+
+          <Route path="/pricing" element={<Pricing />} />
         </Routes>
       </Layout>
     </BrowserRouter>
