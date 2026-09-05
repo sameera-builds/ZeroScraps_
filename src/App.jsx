@@ -11,7 +11,7 @@ import MyShipments from "./pages/MyShipments";
 import ShipmentActions from "./pages/ShipmentActions";
 import NGOBoard from "./pages/NGOBoard";
 import NGOLogin from "./pages/NGOLogin";
-import FarmerVoice from "./pages/FarmerVoice";
+
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
 
           <Route path="/my-listings" element={<MyListings />} />
 
-          <Route path="/farmer" element={<FarmerVoice />} />
+      
 
           <Route
             path="/map"
