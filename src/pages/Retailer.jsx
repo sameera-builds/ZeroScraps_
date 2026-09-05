@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Retailer() {
   const [formData, setFormData] = useState({
@@ -22,11 +23,50 @@ export default function Retailer() {
     });
   };
 
+  /* =========================================================
+     RISK + DISCOUNT
+  ========================================================= */
+
+  const calculateRisk = (expiry) => {
+    const today = new Date();
+    const expiryDate = new Date(expiry);
+
+    const difference =
+      expiryDate.getTime() - today.getTime();
+
+    const daysLeft =
+      difference / (1000 * 60 * 60 * 24);
+
+    if (daysLeft <= 1) {
+      return {
+        risk: "High",
+        discount: 50,
+      };
+    }
+
+    if (daysLeft <= 3) {
+      return {
+        risk: "Medium",
+        discount: 30,
+      };
+    }
+
+    return {
+      risk: "Low",
+      discount: 10,
+    };
+  };
+
+  /* =========================================================
+     VOICE INPUT
+  ========================================================= */
+
   const startVoiceInput = () => {
     setVoiceError("");
 
     const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       setVoiceError(
@@ -46,11 +86,13 @@ export default function Retailer() {
     setVoiceData(null);
 
     recognition.onresult = (event) => {
-      const text = event.results[0][0].transcript;
+      const text =
+        event.results[0][0].transcript;
 
       setTranscript(text);
 
-      const extracted = extractVoiceData(text);
+      const extracted =
+        extractVoiceData(text);
 
       setVoiceData(extracted);
 
@@ -71,6 +113,10 @@ export default function Retailer() {
 
     recognition.start();
   };
+
+  /* =========================================================
+     VOICE DATA EXTRACTION
+  ========================================================= */
 
   const extractVoiceData = (text) => {
     const lowerText = text.toLowerCase();
@@ -117,7 +163,8 @@ export default function Retailer() {
 
     if (product) {
       product =
-        product.charAt(0).toUpperCase() + product.slice(1);
+        product.charAt(0).toUpperCase() +
+        product.slice(1);
     }
 
     /* ---------------- CATEGORY ---------------- */
@@ -136,13 +183,19 @@ export default function Retailer() {
       ].includes(product.toLowerCase())
     ) {
       category = "Produce";
-    } else if (product.toLowerCase() === "milk") {
+    } else if (
+      product.toLowerCase() === "milk"
+    ) {
       category = "Dairy";
     } else if (
-      ["rice", "wheat"].includes(product.toLowerCase())
+      ["rice", "wheat"].includes(
+        product.toLowerCase()
+      )
     ) {
       category = "Grains";
-    } else if (product.toLowerCase() === "bread") {
+    } else if (
+      product.toLowerCase() === "bread"
+    ) {
       category = "Packaged";
     }
 
@@ -158,7 +211,8 @@ export default function Retailer() {
     if (quantityMatch) {
       quantity = Number(quantityMatch[1]);
 
-      const detectedUnit = quantityMatch[2];
+      const detectedUnit =
+        quantityMatch[2];
 
       if (
         detectedUnit === "kg" ||
@@ -170,7 +224,9 @@ export default function Retailer() {
         detectedUnit.startsWith("gram")
       ) {
         unit = "g";
-      } else if (detectedUnit.startsWith("quintal")) {
+      } else if (
+        detectedUnit.startsWith("quintal")
+      ) {
         unit = "quintal";
       } else {
         unit = "ton";
@@ -196,34 +252,24 @@ export default function Retailer() {
 
     let expiry = "";
 
-    /*
-      Supports:
-
-      10th September 2026
-      10 September 2026
-      September 10 2026
-      10th September
-      September 10
-    */
-
     let expiryMatch = lowerText.match(
       /(?:expiry|expires?|expire|expiry date)\s*(?:at|on|is)?\s*(\d{1,2})(?:st|nd|rd|th)?\s*(january|february|march|april|may|june|july|august|september|october|november|december)(?:\s*(\d{4}))?/
     );
 
     if (expiryMatch) {
-      const day = expiryMatch[1].padStart(2, "0");
-      const month = months[expiryMatch[2]];
-      const year = expiryMatch[3] || new Date().getFullYear();
+      const day =
+        expiryMatch[1].padStart(2, "0");
 
-      expiry = `${year}-${month}-${day}`;
+      const month =
+        months[expiryMatch[2]];
+
+      const year =
+        expiryMatch[3] ||
+        new Date().getFullYear();
+
+      expiry =
+        `${year}-${month}-${day}`;
     }
-
-    /*
-      Also supports:
-
-      September 10 2026
-      September 10
-    */
 
     if (!expiry) {
       expiryMatch = lowerText.match(
@@ -231,20 +277,20 @@ export default function Retailer() {
       );
 
       if (expiryMatch) {
-        const month = months[expiryMatch[1]];
-        const day = expiryMatch[2].padStart(2, "0");
-        const year = expiryMatch[3] || new Date().getFullYear();
+        const month =
+          months[expiryMatch[1]];
 
-        expiry = `${year}-${month}-${day}`;
+        const day =
+          expiryMatch[2].padStart(2, "0");
+
+        const year =
+          expiryMatch[3] ||
+          new Date().getFullYear();
+
+        expiry =
+          `${year}-${month}-${day}`;
       }
     }
-
-    /*
-      Also supports:
-
-      10/09/2026
-      10-09-2026
-    */
 
     if (!expiry) {
       expiryMatch = lowerText.match(
@@ -252,11 +298,17 @@ export default function Retailer() {
       );
 
       if (expiryMatch) {
-        const day = expiryMatch[1].padStart(2, "0");
-        const month = expiryMatch[2].padStart(2, "0");
-        const year = expiryMatch[3];
+        const day =
+          expiryMatch[1].padStart(2, "0");
 
-        expiry = `${year}-${month}-${day}`;
+        const month =
+          expiryMatch[2].padStart(2, "0");
+
+        const year =
+          expiryMatch[3];
+
+        expiry =
+          `${year}-${month}-${day}`;
       }
     }
 
@@ -269,114 +321,207 @@ export default function Retailer() {
     };
   };
 
-  /* ---------------- VOICE CONFIRM ---------------- */
+  /* =========================================================
+     SAVE LISTING TO SUPABASE
+  ========================================================= */
 
-  const handleConfirmVoice = () => {
-    if (!voiceData) return;
-
-    if (!voiceData.product) {
-      alert("Product name could not be detected.");
-      return;
+  const saveListingToSupabase = async ({
+    product,
+    category,
+    quantity,
+    unit,
+    expiry,
+  }) => {
+    if (!product) {
+      alert("Product name is required.");
+      return false;
     }
 
-    if (!voiceData.category) {
-      alert("Category could not be detected.");
-      return;
+    if (!category) {
+      alert("Category is required.");
+      return false;
     }
 
-    if (!voiceData.quantity || Number(voiceData.quantity) <= 0) {
-      alert("Quantity could not be detected.");
-      return;
+    if (!quantity || Number(quantity) <= 0) {
+      alert("Quantity must be greater than 0.");
+      return false;
     }
 
-    if (!voiceData.expiry) {
+    if (!expiry) {
+      alert("Expiry date is required.");
+      return false;
+    }
+
+    const today =
+      new Date().toISOString().split("T")[0];
+
+    if (expiry <= today) {
       alert(
-        "Expiry date could not be detected. Please say something like 'expiry 10th September 2026'."
+        "Expiry date must be after today."
       );
-      return;
+      return false;
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    /* ---------------- CONVERT EVERYTHING TO KG ---------------- */
 
-    if (voiceData.expiry <= today) {
-      alert("Expiry date must be after today.");
-      return;
+    let quantityKg = Number(quantity);
+
+    if (unit === "g") {
+      quantityKg = quantityKg / 1000;
+    } else if (unit === "quintal") {
+      quantityKg = quantityKg * 100;
+    } else if (unit === "ton") {
+      quantityKg = quantityKg * 1000;
     }
 
-    /* CREATE LISTING DIRECTLY */
+    /* ---------------- RISK ---------------- */
 
-    const existingListings =
-      JSON.parse(localStorage.getItem("retailerListings")) || [];
+    const {
+      risk,
+      discount,
+    } = calculateRisk(expiry);
 
-    const newListing = {
-      id: Date.now(),
-      product: voiceData.product,
-      category: voiceData.category,
-      quantity: Number(voiceData.quantity),
-      expiry: voiceData.expiry,
-      description: "",
-      status: "Available",
-      ngo: null,
+    /* ---------------- GET CURRENT USER ---------------- */
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      console.error(
+        "Auth error:",
+        userError
+      );
+    }
+
+    let retailerId = null;
+
+    /* ---------------- GET RETAILER ID ---------------- */
+
+    if (user) {
+      const {
+        data: retailerRow,
+        error: retailerError,
+      } = await supabase
+        .from("retailers")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (retailerError) {
+        console.error(
+          "Retailer lookup error:",
+          retailerError
+        );
+      }
+
+      if (retailerRow) {
+        retailerId = retailerRow.id;
+      }
+    }
+
+    /* ---------------- INSERT ---------------- */
+
+    const listing = {
+      food_name: product,
+      category: category,
+      quantity_kg: quantityKg,
+      expiry_date: expiry,
+      status: "available",
+      risk: risk,
+      discount_percent: discount,
     };
 
-    const updatedListings = [
-      newListing,
-      ...existingListings,
-    ];
+    /*
+      Only add retailer_id when we actually
+      have one. This keeps the demo working
+      even if the user is not logged in.
+    */
 
-    localStorage.setItem(
-      "retailerListings",
-      JSON.stringify(updatedListings)
+    if (retailerId) {
+      listing.retailer_id = retailerId;
+    }
+
+    console.log(
+      "INSERTING LISTING:",
+      listing
     );
 
-    alert("Voice listing created successfully!");
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("surplus_listings")
+      .insert([listing])
+      .select()
+      .single();
+
+    if (error) {
+      console.error(
+        "Supabase insert error:",
+        error
+      );
+
+      alert(
+        "Could not create listing: " +
+          error.message
+      );
+
+      return false;
+    }
+
+    console.log(
+      "LISTING CREATED:",
+      data
+    );
+
+    return true;
+  };
+
+  /* =========================================================
+     VOICE CONFIRM
+  ========================================================= */
+
+  const handleConfirmVoice = async () => {
+    if (!voiceData) return;
+
+    const success =
+      await saveListingToSupabase(
+        voiceData
+      );
+
+    if (!success) return;
+
+    alert(
+      "Voice listing created successfully!"
+    );
 
     setVoiceData(null);
     setTranscript("");
   };
 
-  /* ---------------- WRITTEN FORM ---------------- */
+  /* =========================================================
+     WRITTEN FORM
+  ========================================================= */
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const today = new Date().toISOString().split("T")[0];
+    const success =
+      await saveListingToSupabase({
+        product: formData.product,
+        category: formData.category,
+        quantity: formData.quantity,
+        unit: "kg",
+        expiry: formData.expiry,
+      });
 
-    if (Number(formData.quantity) <= 0) {
-      alert("Quantity must be greater than 0.");
-      return;
-    }
+    if (!success) return;
 
-    if (formData.expiry <= today) {
-      alert("Expiry date must be after today.");
-      return;
-    }
-
-    const existingListings =
-      JSON.parse(localStorage.getItem("retailerListings")) || [];
-
-    const newListing = {
-      id: Date.now(),
-      product: formData.product,
-      category: formData.category,
-      quantity: Number(formData.quantity),
-      expiry: formData.expiry,
-      description: formData.description,
-      status: "Available",
-      ngo: null,
-    };
-
-    const updatedListings = [
-      newListing,
-      ...existingListings,
-    ];
-
-    localStorage.setItem(
-      "retailerListings",
-      JSON.stringify(updatedListings)
+    alert(
+      "Listing created successfully!"
     );
-
-    alert("Listing created successfully!");
 
     setFormData({
       product: "",
@@ -386,6 +531,10 @@ export default function Retailer() {
       description: "",
     });
   };
+
+  /* =========================================================
+     UI
+  ========================================================= */
 
   return (
     <div className="min-h-screen bg-white px-6 py-10 md:px-10">
@@ -399,6 +548,7 @@ export default function Retailer() {
           </p>
 
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+
             <div>
               <h1 className="font-heading text-4xl font-bold text-gray-900 md:text-5xl">
                 Manage your surplus food
@@ -416,6 +566,7 @@ export default function Retailer() {
             >
               My Listings
             </Link>
+
           </div>
         </div>
 
@@ -441,7 +592,9 @@ export default function Retailer() {
               disabled={isRecording}
               className="flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 font-body font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <span className="text-lg">🎤</span>
+              <span className="text-lg">
+                🎤
+              </span>
 
               {isRecording
                 ? "Listening..."
@@ -491,7 +644,7 @@ export default function Retailer() {
 
               <div className="mt-6 space-y-5">
 
-                {/* PRODUCT NAME */}
+                {/* PRODUCT */}
 
                 <div>
                   <label className="mb-2 block font-body font-semibold text-gray-900">
@@ -568,7 +721,8 @@ export default function Retailer() {
                     onChange={(e) =>
                       setVoiceData({
                         ...voiceData,
-                        quantity: e.target.value,
+                        quantity:
+                          e.target.value,
                       })
                     }
                     min="1"
@@ -577,7 +731,7 @@ export default function Retailer() {
                   />
                 </div>
 
-                {/* EXPIRY DATE */}
+                {/* EXPIRY */}
 
                 <div>
                   <label className="mb-2 block font-body font-semibold text-gray-900">
@@ -590,17 +744,20 @@ export default function Retailer() {
                     onChange={(e) =>
                       setVoiceData({
                         ...voiceData,
-                        expiry: e.target.value,
+                        expiry:
+                          e.target.value,
                       })
                     }
-                    min={new Date().toISOString().split("T")[0]}
+                    min={
+                      new Date()
+                        .toISOString()
+                        .split("T")[0]
+                    }
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-brand"
                   />
                 </div>
 
               </div>
-
-              {/* CONFIRM */}
 
               <button
                 type="button"
@@ -613,7 +770,7 @@ export default function Retailer() {
             </div>
           )}
 
-          {/* NORMAL WRITTEN FORM */}
+          {/* WRITTEN FORM */}
 
           <form
             onSubmit={handleSubmit}
@@ -711,7 +868,11 @@ export default function Retailer() {
                   name="expiry"
                   value={formData.expiry}
                   onChange={handleChange}
-                  min={new Date().toISOString().split("T")[0]}
+                  min={
+                    new Date()
+                      .toISOString()
+                      .split("T")[0]
+                  }
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-brand"
                   required
                 />
@@ -719,9 +880,10 @@ export default function Retailer() {
 
             </div>
 
-            {/* DESCRIPTION - WRITTEN FORM ONLY */}
+            {/* DESCRIPTION */}
 
             <div className="mt-6">
+
               <label className="mb-2 block font-body font-semibold text-gray-900">
                 Description
               </label>
@@ -734,17 +896,20 @@ export default function Retailer() {
                 placeholder="Describe the surplus food..."
                 className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-brand"
               />
+
             </div>
 
-            {/* CREATE LISTING */}
+            {/* CREATE */}
 
             <div className="mt-8 flex justify-end">
+
               <button
                 type="submit"
                 className="rounded-xl bg-accent px-6 py-3 font-body font-semibold text-white transition hover:opacity-90"
               >
                 Create Listing
               </button>
+
             </div>
 
           </form>

@@ -11,6 +11,8 @@ import GenerateQR from "./pages/GenerateQR";
 import Verify from "./pages/Verify";
 import NGOBoard from "./pages/NGOBoard";
 import NGOLogin from "./pages/NGOLogin";
+import Retailer from "./pages/Retailer";
+//import FarmerVoice from "./pages/FarmerVoice";
 
 function App() {
   return (
@@ -24,18 +26,12 @@ function App() {
 
             <Route path="/ngo-login" element={<NGOLogin />} />
 
-            <Route
-              path="/retailer"
-              element={
-                <div className="p-10">
-                  Retailer
-                </div>
-              }
-            />
+            <Route path="/retailer" element={<Retailer />} />
 
             <Route path="/map" element={<Map />} />
 
             <Route path="/analytics" element={<Analytics />} />
+          {/* <Route path="/farmer" element={<FarmerVoice />} /> */}
 
             <Route path="/generate-qr" element={<GenerateQR />} />
 
