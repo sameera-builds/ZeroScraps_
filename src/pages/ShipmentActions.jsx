@@ -15,9 +15,19 @@ export default function ShipmentActions() {
 
   async function fetchShipments() {
     const { data, error } = await supabase
-      .from('shipments')
-      .select('*')
-      .order('created_at', { ascending: false });
+  .from('shipments')
+  .select(`
+    id,
+    status,
+    source,
+    destination,
+    created_at,
+    batches (
+      product_name,
+      quantity_kg
+    )
+  `)
+  .order('created_at', { ascending: false });
 
     if (error) {
       setError(error.message);
@@ -61,8 +71,8 @@ export default function ShipmentActions() {
             return (
               <div key={shipment.id} className="bg-surface-alt rounded-xl shadow-sm border border-border p-6">
                 <p className="font-heading font-semibold text-lg text-text">
-                  🍅 {shipment.crop} — Batch #{shipment.batch_number}
-                </p>
+  🍅 {shipment.batches?.product_name || 'Unknown product'} — {shipment.batches?.quantity_kg ?? '—'} kg
+</p>
                 <p className="font-body text-text-muted text-sm mb-4">
                   Current status: <span className="font-medium text-text">{shipment.status}</span>
                 </p>
