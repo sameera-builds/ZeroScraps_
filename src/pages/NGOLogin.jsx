@@ -1,54 +1,161 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 
 export default function NGOLogin() {
-  const [isSignup, setIsSignup] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [ngoName, setNgoName] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  const [mode, setMode] = useState('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSignUp = async () => {
     setError('');
+    setMessage('');
 
-    if (isSignup) {
-      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (signUpError) return setError(signUpError.message);
-
-      const { error: profileError } = await supabase
-        .from('ngos')
-        .insert({ user_id: data.user.id, name: ngoName, email });
-      if (profileError) return setError(profileError.message);
-    } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) return setError(signInError.message);
+    if (!name || !email || !password) {
+      setError('Please fill in all fields.');
+      return;
     }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setLoading(true);
+    const { error: signUpError } = await supabase.auth.signUp({ email, password });
+
+    if (signUpError) {
+      setLoading(false);
+      setError(signUpError.message);
+      return;
+    }
+
+    setLoading(false);
+    setMessage(
+      'Account created! Please check your email and click the confirmation link to verify your account. Then come back and log in.'
+    );
+    setMode('login');
+  };
+
+  const handleLogIn = async () => {
+    setError('');
+    setMessage('');
+
+    if (!email || !password) {
+      setError('Please enter your email and password.');
+      return;
+    }
+
+    setLoading(true);
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (loginError) {
+      setLoading(false);
+      setError(loginError.message);
+      return;
+    }
+
+    const user = loginData.user;
+    if (!user) {
+      setLoading(false);
+      setError('Login failed. Please try again.');
+      return;
+    }
+
+    const { data: existingNgo, error: ngoLookupError } = await supabase
+      .from('ngos')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (ngoLookupError) {
+      setLoading(false);
+      setError(ngoLookupError.message);
+      return;
+    }
+
+    if (!existingNgo) {
+      const { error: insertError } = await supabase
+        .from('ngos')
+        .insert({
+          user_id: user.id,
+          name: name || email.split('@')[0],
+          email: user.email,
+        });
+
+      if (insertError) {
+        setLoading(false);
+        setError(insertError.message);
+        return;
+      }
+    }
+
+    setLoading(false);
     navigate('/ngo');
-  }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-surface-alt rounded-xl shadow-sm border border-border">
-      <h2 className="font-heading font-bold text-2xl mb-4 text-text">{isSignup ? 'NGO Sign Up' : 'NGO Login'}</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        {isSignup && (
-          <input className="border border-border rounded-xl p-2" placeholder="NGO name"
-            value={ngoName} onChange={(e) => setNgoName(e.target.value)} required />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-surface)' }}>
+      <div style={{ width: '100%', maxWidth: 380, padding: '2rem', borderRadius: 12, background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}>
+        <h2 style={{ fontFamily: 'Sora, sans-serif', marginBottom: '1rem' }}>
+          NGO {mode === 'signup' ? 'Sign Up' : 'Log In'}
+        </h2>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: '1rem' }}>
+          <button onClick={() => { setMode('login'); setError(''); setMessage(''); }} style={tabStyle(mode === 'login')}>
+            Log In
+          </button>
+          <button onClick={() => { setMode('signup'); setError(''); setMessage(''); }} style={tabStyle(mode === 'signup')}>
+            Sign Up
+          </button>
+        </div>
+
+        {mode === 'signup' && (
+          <input placeholder="NGO name" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
         )}
-        <input className="border border-border rounded-xl p-2" type="email" placeholder="Email"
-          value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input className="border border-border rounded-xl p-2" type="password" placeholder="Password"
-          value={password} onChange={(e) => setPassword(e.target.value)} required />
-        {error && <p className="text-risk-high text-sm">{error}</p>}
-        <button type="submit" className="bg-accent text-white rounded-xl p-2 font-medium">
-          {isSignup ? 'Sign Up' : 'Log In'}
+
+        <input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+        <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
+
+        <button
+          disabled={loading}
+          onClick={mode === 'signup' ? handleSignUp : handleLogIn}
+          style={{ ...submitStyle, opacity: loading ? 0.7 : 1 }}
+        >
+          {loading ? '...' : mode === 'signup' ? 'Create Account' : 'Log In'}
         </button>
-      </form>
-      <button onClick={() => setIsSignup(!isSignup)} className="text-text-muted text-sm mt-3 underline">
-        {isSignup ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
-      </button>
+
+        {message && <p style={{ color: 'green', fontSize: '0.85rem', marginTop: 12, lineHeight: 1.5 }}>{message}</p>}
+        {error && <p style={{ color: 'var(--color-risk-high)', fontSize: '0.85rem', marginTop: 12, lineHeight: 1.5 }}>{error}</p>}
+      </div>
     </div>
   );
 }
+
+const inputStyle = {
+  width: '100%', padding: '0.7rem', marginBottom: '0.7rem', borderRadius: 8,
+  border: '1px solid var(--color-border)', fontFamily: 'Inter, sans-serif',
+};
+const submitStyle = {
+  width: '100%', padding: '0.8rem', borderRadius: 8, border: 'none',
+  background: 'var(--color-brand)', color: '#fff', fontFamily: 'Inter, sans-serif', cursor: 'pointer',
+};
+const tabStyle = (active) => ({
+  flex: 1, padding: '0.5rem', borderRadius: 8, border: '1px solid var(--color-border)',
+  background: active ? 'var(--color-brand)' : 'transparent', color: active ? '#fff' : 'var(--color-text)',
+  cursor: 'pointer',
+});

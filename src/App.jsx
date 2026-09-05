@@ -9,6 +9,9 @@ import GenerateQR from "./pages/GenerateQR";
 import Verify from "./pages/Verify";
 import NGOBoard from "./pages/NGOBoard";
 import NGOLogin from "./pages/NGOLogin";
+import RetailerLogin from "./pages/RetailerLogin";
+import RoleSelect from "./pages/RoleSelect";
+import Traceability from "./pages/Traceability";
 
 function App() {
   return (
@@ -16,16 +19,12 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/select-role" element={<RoleSelect />} />
 
-          <Route
-            path="/ngo"
-            element={
-              <div className="min-h-screen p-10">
-                <h1 className="text-3xl font-bold">NGO Board</h1>
-              </div>
-            }
-          />
+          <Route path="/ngo-login" element={<NGOLogin />} />
+          <Route path="/ngo" element={<NGOBoard />} />
 
+          <Route path="/retailer-login" element={<RetailerLogin />} />
           <Route path="/retailer" element={<Retailer />} />
 
           <Route path="/my-listings" element={<MyListings />} />
@@ -39,21 +38,10 @@ function App() {
             }
           />
 
-          <Route
-            path="/analytics"
-            element={
-              <div className="min-h-screen p-10">
-                <h1 className="text-3xl font-bold">Analytics</h1>
-              </div>
-            }
-          />
-          <Route path="/ngo" element={<NGOBoard />} />
-          <Route path="/ngo-login" element={<NGOLogin />} />
-          <Route path="/retailer" element={<div className="p-10">Retailer</div>} />
-          <Route path="/map" element={<div className="p-10">Map</div>} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/generate-qr" element={<GenerateQR />} />
           <Route path="/verify/:id" element={<Verify />} />
+          <Route path="/traceability" element={<Traceability />} />
         </Routes>
       </Layout>
     </BrowserRouter>
