@@ -31,9 +31,19 @@ export default function MyShipments() {
     async function fetchShipments() {
       // Guessed table name 'shipments' — confirm exact name with Person 4/Person 1
       const { data, error } = await supabase
-        .from('shipments')
-        .select('*')
-        .order('created_at', { ascending: false });
+  .from('shipments')
+  .select(`
+    id,
+    status,
+    source,
+    destination,
+    created_at,
+    batches (
+      product_name,
+      quantity_kg
+    )
+  `)
+  .order('created_at', { ascending: false });
 
       if (error) {
         setError(error.message);
@@ -59,14 +69,20 @@ export default function MyShipments() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {shipments.map((shipment) => (
             <div key={shipment.id} className="bg-surface-alt rounded-xl shadow-sm border border-border p-6">
-              <p className="font-heading font-semibold text-lg text-text">
-                🍅 {shipment.crop} — Batch #{shipment.batch_number}
-              </p>
-              <p className="font-body text-text-muted text-sm mb-2">
-                {shipment.quantity} {shipment.unit}
-              </p>
-              <ShipmentProgress currentStatus={shipment.status} />
-            </div>
+  <p className="font-heading font-semibold text-lg text-text">
+    🍅 {shipment.batches?.product_name || 'Unknown product'}
+  </p>
+  <p className="font-body text-text-muted text-sm mb-2">
+    {shipment.batches?.quantity_kg ?? '—'} kg
+  </p>
+  <p className="font-body text-text-muted text-sm">
+    From: <span className="text-text font-medium">{shipment.source || 'Not specified'}</span>
+  </p>
+  <p className="font-body text-text-muted text-sm mb-2">
+    To: <span className="text-text font-medium">{shipment.destination || 'Not specified'}</span>
+  </p>
+  <ShipmentProgress currentStatus={shipment.status} />
+</div>
           ))}
         </div>
       )}
