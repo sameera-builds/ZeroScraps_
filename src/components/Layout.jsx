@@ -5,7 +5,7 @@ function Layout({ children }) {
     <div className="min-h-screen bg-surface text-text">
       <Navbar />
 
-      <main>
+      <main className="relative">
         {children}
       </main>
     </div>
