@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import Analytics from "./pages/Analytics";
 import GenerateQR from "./pages/GenerateQR";
 import Verify from "./pages/Verify";
+import MyShipments from "./pages/MyShipments";
+import ShipmentActions from "./pages/ShipmentActions";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/generate-qr" element={<GenerateQR />} />
           <Route path="/verify/:id" element={<Verify />} />
+          <Route path="/my-shipments" element={<MyShipments />} />
+          <Route path="/shipment-actions" element={<ShipmentActions />} />
         </Routes>
       </Layout>
     </BrowserRouter>
