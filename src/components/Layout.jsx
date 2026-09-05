@@ -2,7 +2,7 @@ import Navbar from "./Navbar";
 
 function Layout({ children }) {
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface text-text">
       <Navbar />
 
       <main>
