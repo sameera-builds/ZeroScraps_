@@ -1,8 +1,10 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Mic } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function Home() {
   return (
     <div>
+      {/* Hero */}
       <section className="bg-surface px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <span className="inline-flex rounded-full bg-brand/10 px-4 py-2 text-sm font-semibold text-brand">
@@ -15,22 +17,31 @@ function Home() {
           </h1>
 
           <p className="mt-6 max-w-2xl font-body text-lg leading-8 text-text-muted">
-            ZeroScraps connects retailers with NGOs to reduce food waste and
-            route surplus food to communities that need it.
+            ZeroScraps connects farmers, retailers and NGOs to reduce food
+            waste and route surplus food to communities that need it.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <button className="flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 font-body font-semibold text-white hover:opacity-90">
+            <Link
+              to="/farmer"
+              className="flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 font-body font-semibold text-white transition hover:opacity-90"
+            >
+              <Mic size={18} />
+              Add Produce with Voice
+            </Link>
+
+            <Link
+              to="/retailer"
+              className="flex items-center gap-2 rounded-xl border border-brand px-6 py-3.5 font-body font-semibold text-brand transition hover:bg-brand hover:text-white"
+            >
               Open Retailer Portal
               <ArrowRight size={18} />
-            </button>
-            <button className="rounded-xl border border-brand px-6 py-3.5 font-body font-semibold text-brand hover:bg-brand hover:text-white">
-              Explore Map
-            </button>
+            </Link>
           </div>
         </div>
       </section>
 
+      {/* Stats */}
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <Stat title="Active Listings" value="0" text="Available surplus" />
@@ -40,21 +51,47 @@ function Home() {
         </div>
       </section>
 
+      {/* How it works */}
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <p className="font-body text-sm font-semibold uppercase tracking-wider text-accent">
             How it works
           </p>
+
           <h2 className="mt-2 font-heading text-3xl font-bold text-text">
             How the loop closes
           </h2>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            <Step number="1" title="Retailer lists surplus" text="Product, quantity, expiry and price are added." />
-            <Step number="2" title="NGO discovers" text="Nearby NGOs find suitable available listings." />
-            <Step number="3" title="NGO claims food" text="An NGO reserves the surplus for collection." />
-            <Step number="4" title="Food is routed" text="The platform helps coordinate the handover." />
-            <Step number="5" title="QR verifies" text="The completed handover is verified." />
+            <Step
+              number="1"
+              title="Farmer adds produce"
+              text="Farmers describe their harvested produce using voice input."
+            />
+
+            <Step
+              number="2"
+              title="Retailer lists surplus"
+              text="Product, quantity, expiry and price are added."
+            />
+
+            <Step
+              number="3"
+              title="NGO discovers"
+              text="Nearby NGOs find suitable available listings."
+            />
+
+            <Step
+              number="4"
+              title="Food is routed"
+              text="The platform helps coordinate the handover."
+            />
+
+            <Step
+              number="5"
+              title="QR verifies"
+              text="The completed handover is verified."
+            />
           </div>
         </div>
       </section>
@@ -66,7 +103,11 @@ function Stat({ title, value, text }) {
   return (
     <div className="rounded-xl border border-border bg-surface-alt p-6 shadow-sm">
       <p className="text-sm text-text-muted">{title}</p>
-      <p className="mt-2 font-heading text-3xl font-bold text-brand">{value}</p>
+
+      <p className="mt-2 font-heading text-3xl font-bold text-brand">
+        {value}
+      </p>
+
       <p className="mt-1 text-xs text-text-muted">{text}</p>
     </div>
   );
@@ -78,8 +119,14 @@ function Step({ number, title, text }) {
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-bold text-white">
         {number}
       </div>
-      <h3 className="mt-5 font-heading text-lg font-bold text-text">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-text-muted">{text}</p>
+
+      <h3 className="mt-5 font-heading text-lg font-bold text-text">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-text-muted">
+        {text}
+      </p>
     </div>
   );
 }
