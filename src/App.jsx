@@ -7,6 +7,8 @@ import MyListings from "./pages/MyListings";
 import Analytics from "./pages/Analytics";
 import GenerateQR from "./pages/GenerateQR";
 import Verify from "./pages/Verify";
+import MyShipments from "./pages/MyShipments";
+import ShipmentActions from "./pages/ShipmentActions";
 import NGOBoard from "./pages/NGOBoard";
 import NGOLogin from "./pages/NGOLogin";
 
@@ -54,6 +56,8 @@ function App() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/generate-qr" element={<GenerateQR />} />
           <Route path="/verify/:id" element={<Verify />} />
+          <Route path="/my-shipments" element={<MyShipments />} />
+          <Route path="/shipment-actions" element={<ShipmentActions />} />
         </Routes>
       </Layout>
     </BrowserRouter>
